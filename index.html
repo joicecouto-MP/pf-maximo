@@ -688,33 +688,36 @@ const DEF_TAREFAS=[];
 // ===== STATE =====
 let INSCS=[],RECS=[],DIARIO=[],TAREFAS=[];
 let perfil='membro',chartCat=null,chartReg=null,currentPage='visao';
-const K={i:'pf_maximo_inscs',r:'pf_maximo_recs',d:'pf_maximo_diario',t:'pf_maximo_tarefas'};
+const BIN_ID='6a1fadc0da38895dfe7ef8a8';
+const API_KEY='$2a$10$SRlBpjUenls555emp1jLleo9UApmdDtDkIoXUOstjJpJfrrHMHrb2';
+const BIN_URL=`https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 // ===== STORAGE =====
 async function saveAll(){
   try{
-    localStorage.setItem(K.i,JSON.stringify(INSCS));
-    localStorage.setItem(K.r,JSON.stringify(RECS));
-    localStorage.setItem(K.d,JSON.stringify(DIARIO));
-    localStorage.setItem(K.t,JSON.stringify(TAREFAS));
+    const data={RECS,INSCS,DIARIO,TAREFAS};
+    await fetch(BIN_URL,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json','X-Master-Key':API_KEY,'X-Bin-Versioning':'false'},
+      body:JSON.stringify(data)
+    });
     setSyncStatus(true);
-  }catch(e){setSyncStatus(false);}
+  }catch(e){console.error('save error',e);setSyncStatus(false);}
 }
 async function loadAll(){
   try{
-    const ver=localStorage.getItem('pf_maximo_ver');
-    if(!ver||ver!=='v3'){
-      INSCS=[...DEF_INSCS];RECS=[...DEF_RECS];DIARIO=[...DEF_DIARIO];TAREFAS=[...DEF_TAREFAS];
-      await saveAll();
-      localStorage.setItem('pf_maximo_ver','v3');
-      setSyncStatus(true);return;
-    }
-    INSCS=JSON.parse(localStorage.getItem(K.i)||'null')||[...DEF_INSCS];
-    RECS=JSON.parse(localStorage.getItem(K.r)||'null')||[...DEF_RECS];
-    DIARIO=JSON.parse(localStorage.getItem(K.d)||'null')||[...DEF_DIARIO];
-    TAREFAS=JSON.parse(localStorage.getItem(K.t)||'null')||[...DEF_TAREFAS];
+    const res=await fetch(BIN_URL+'/latest',{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'}});
+    if(!res.ok)throw new Error('fetch failed');
+    const data=await res.json();
+    INSCS=data.INSCS?.length?data.INSCS:[...DEF_INSCS];
+    RECS=data.RECS||[];
+    DIARIO=data.DIARIO||[];
+    TAREFAS=data.TAREFAS||[];
+    // Se INSCS vazio, inicializa com default e salva
+    if(!data.INSCS?.length)await saveAll();
     setSyncStatus(true);
   }catch(e){
+    console.error('load error',e);
     INSCS=[...DEF_INSCS];RECS=[...DEF_RECS];DIARIO=[...DEF_DIARIO];TAREFAS=[...DEF_TAREFAS];
     setSyncStatus(false);
   }
