@@ -675,7 +675,7 @@ const PFS=[
   {nome:'Silvia Rodrigues Bicalho',regional:'MG',hub:'MG05',part:{28:'D',29:'✔'},totalOner:1,totalD:1},
 ];
 const NOMES=PFS.map(p=>p.nome);
-const CATS=['Operação / Processo','Sistema / Plataforma','Treinamento / Capacitação','Comunicação Interna','Regra de Negócio','Atendimento ao Vendedor','Logística','Pagamentos / Financeiro','Outros'];
+const CATS=['Operação / Processo','Sistema / Plataforma','Treinamento / Capacitação','Comunicação Interna','Regra de Negócio','Análise Individual para Executivo','Outros'];
 
 const DEF_INSCS=SEMS.map(s=>({semana:s.label,periodo:s.periodo,semNum:s.num,pf1:'',reg1:'',hub1:'',pf2:'',reg2:'',hub2:'',confirmado:''}));
 
@@ -786,7 +786,7 @@ function aplicarPerfil(v){
   document.getElementById('form-cad').style.display=g?'none':'block';
   document.getElementById('painel-validacao').style.display=g?'block':'none';
   document.getElementById('painel-lista').style.display=g?'none':'block';
-  document.getElementById('form-inscricao').style.display=g?'none':'block';
+  document.getElementById('form-inscricao').style.display='block';
   if(g)renderVal();
   renderTarefas();
   toast(g?'Modo Gestora ativado':'Modo Membro ativado');
@@ -867,7 +867,7 @@ function renderVisao(){
 
 // ===== INSCRIÇÃO =====
 function renderInscricao(){
-  document.getElementById('inscricao-range').textContent='Semanas 20–'+SEMS[SEMS.length-1]?.num+' | até 31/12/2026';
+  document.getElementById('inscricao-range').textContent='Semanas 1–'+SEMS[SEMS.length-1]?.num+' | até 31/12/2026';
   const sa=semAtual();
   document.getElementById('s-sem').innerHTML=SEMS.filter(s=>s.inicio>=new Date()).map(s=>`<option value="${s.num}">${s.label} — ${s.periodo}</option>`).join('');
   document.getElementById('sched-body').innerHTML=INSCS.map(i=>{
